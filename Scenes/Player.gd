@@ -4,15 +4,17 @@ extends CharacterBody2D
 @export var apex_curve:Curve 
 @export var img:Sprite2D
 
-var SPEED	:float = 400	## Targeted speed
-var ACC		:float = 240	## acceleration
-var AIRC	:float = 2		## air control divider (the higher the value the less control you have)
-var GRA		:float = 40		## gravity acceleration
-var TRGGRA	:float = 700 	## Targeted gravity with air drag
-var JMP		:float = -800	## Jump velocity
-var JMPBUFT	:float = 0.15	## Activate the jump if jump key pressed to early
-var APEXT	:float = 0.1	## Apex mode duration
-var COYINT	:float = 0.1	## Coyote time interval
+var SPEED		:float = 400	## Targeted speed
+var ACC			:float = 240	## acceleration
+var AIRC		:float = 2		## air control divider (the higher the value the less control you have)
+var GRA			:float = 40		## gravity acceleration
+var TRGGRA		:float = 700 	## Targeted gravity with air drag
+var JMP			:float = 800	## Jump velocity
+var JMPBUFT		:float = 0.15	## Activate the jump if jump key pressed to early
+var JMPRLYGF	:float = 2 		## Jump ended early gravity factor
+var APEXT		:float = 0.1	## Apex mode duration
+var COYINT		:float = 0.1	## Coyote time interval
+var WALLDRAG	:float = 0.5	## Wall Drag Factor
 
 
 # Called when the node enters the scene tree for the first time.
@@ -33,11 +35,11 @@ var was_on_floor:bool = false
 var last_was_on_floor_time:float = 0
 var last_was_on_wall_time:float = 0
 
-func in_coyote_interval():
-	return time - last_was_on_floor_time < 0.1
+func in_coyote_interval_floor():
+	return wtime(last_was_on_floor_time,COYINT)
 
 func in_coyot_interval_wall():
-	return wtime(last_was_on_wall_time,0.1)
+	return wtime(last_was_on_wall_time,COYINT)
 
 
 
@@ -47,7 +49,7 @@ var jump_press_time:float = -1
 
 ## early_end_jump
 var jump_ended_early = false
-var jump_ended_early_gravity_factor:float = 2
+var jump_ended_early_gravity_factor:float = JMPRLYGF
 
 
 ## apex
@@ -78,39 +80,50 @@ var gravity:float:
 
 
 
-## Jump
-var in_jump = false
-func jump():
-	jump_ended_early = false
-	in_jump = true
-	velocity[1] = JMP
-
-## Wall
-var on_wall:bool = false
-
-
 ## Time Comparaisons
 var time:float:
 	get: return Time.get_unix_time_from_system()
 func wtime(t,interval):
 	return time - t < interval
 
+## Jump
+var in_jump = false
+func jump():
+	if in_jump: return
+	jump_ended_early = false
+	in_jump = true
+	apex_reached_time = 0
+	jump_press_time = -1
+	velocity[1] = -1*JMP
+
+func wall_jump():
+	if in_jump: return
+	jump()
+	velocity[0] = get_wall_normal()[0]*JMP
+
+## Wall
+var on_wall:bool = false
+
+
 
 func on_wall_hit():
+	in_jump = false
 	on_wall = true
+	if wtime(jump_press_time,JMPBUFT):
+		wall_jump()
 	
 func on_wall_leave():
 	on_wall = false
 	last_was_on_wall_time = time
 
 func when_wall_hit():
+	## Wall Drag
 	var direction = Input.get_axis("move_left","move_right")
-	if direction*get_wall_normal()[0] < 0:
-		velocity[1] *= 0.5
+	if direction*get_wall_normal()[0] < 0: 
+		velocity[1] *= WALLDRAG
 	pass
 
 func when_in_air():
-	#velocity[1] = clamp(velocity[1]+gravity, -800, 800)
 	velocity[1] = move_toward(velocity[1],TRGGRA,gravity)
 
 func on_in_air():
@@ -147,19 +160,25 @@ func _physics_process(delta):
 	elif on_wall:
 		on_wall_leave()
 	
+	var direction = Input.get_axis("move_left","move_right")
+	
+	
+	
 	if Input.is_action_just_pressed("jump"):
 		jump_press_time = time
-		if is_on_floor() or in_coyote_interval():
-			jump()
-		if on_wall or in_coyot_interval_wall():
-			jump()
-			velocity[0] = get_wall_normal()[0]*JMP*-1
+		if is_on_floor() or in_coyote_interval_floor():
+			if is_on_wall() and direction:
+				wall_jump()
+			else:
+				jump()
+		elif is_on_wall() or in_coyot_interval_wall():
+			wall_jump()
 	
 	if Input.is_action_just_released("jump"):
 		if in_jump and velocity[1] < 0:
 			jump_ended_early = true
 	
-	var direction = Input.get_axis("move_left","move_right")
+	
 	if direction:
 		if is_on_floor():
 			velocity[0] = move_toward(velocity[0], direction*speed, ACC)

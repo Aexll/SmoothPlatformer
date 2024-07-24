@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=3 uid="uid://cj7opjueceyof"]
+
+[ext_resource type="Script" path="res://Scenes/paramodifier.gd" id="1_x4d7b"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_imijo"]
+font_size = 24
+
+[node name="HBoxContainer" type="HBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 34.0
+grow_horizontal = 2
+script = ExtResource("1_x4d7b")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "hello"
+label_settings = SubResource("LabelSettings_imijo")
+
+[node name="LineEdit" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 1
+alignment = 1
+context_menu_enabled = false
+shortcut_keys_enabled = false
+selecting_enabled = false
+
+[node name="CheckBox" type="CheckBox" parent="."]
+visible = false
+layout_mode = 2
+focus_mode = 0
+
+[connection signal="text_changed" from="LineEdit" to="." method="_on_line_edit_text_changed"]
+[connection signal="toggled" from="CheckBox" to="." method="_on_check_box_toggled"]
