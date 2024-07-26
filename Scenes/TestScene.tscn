@@ -1,9 +1,11 @@
-[gd_scene load_steps=18 format=3 uid="uid://dayekiv2rwn5c"]
+[gd_scene load_steps=20 format=3 uid="uid://dayekiv2rwn5c"]
 
 [ext_resource type="Script" path="res://Scenes/button_open_close_menu.gd" id="1_3x175"]
 [ext_resource type="PackedScene" uid="uid://cj7opjueceyof" path="res://Scenes/Paramodifier.tscn" id="1_4mjfd"]
 [ext_resource type="Script" path="res://Scenes/Player.gd" id="1_qry7v"]
 [ext_resource type="Shader" path="res://Scenes/Squeeshing.gdshader" id="2_0pxag"]
+[ext_resource type="PackedScene" uid="uid://n321vsoifodq" path="res://Particles/hit_particles.tscn" id="5_3k1i7"]
+[ext_resource type="Script" path="res://Scenes/particle_queue.gd" id="6_mtmrp"]
 
 [sub_resource type="Curve" id="Curve_kyr6g"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.495098, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -13,6 +15,7 @@ point_count = 3
 shader = ExtResource("2_0pxag")
 shader_parameter/size = 0.0
 shader_parameter/r = 0.0
+shader_parameter/offset = Vector2(0, 16.105)
 
 [sub_resource type="Gradient" id="Gradient_xdhhk"]
 offsets = PackedFloat32Array(0.0178571, 1)
@@ -53,6 +56,20 @@ tracks/1/keys = {
 "update": 0,
 "values": [Vector2(0, 16), Vector2(0, 16), Vector2(0, 16)]
 }
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Node2D/ParticleQueue")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"spawn"
+}]
+}
 
 [sub_resource type="Animation" id="Animation_pmxm5"]
 resource_name = "hit_right"
@@ -79,7 +96,21 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.0666, 0.1998),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector2(0, 16), Vector2(3, 16), Vector2(0, 16)]
+"values": [Vector2(0, 16), Vector2(3, 19), Vector2(0, 16)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Node2D/ParticleQueue")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"spawn_right"
+}]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_wj0nw"]
@@ -127,7 +158,7 @@ theme_override_constants/margin_bottom = 5
 layout_mode = 2
 
 [node name="Button" type="Button" parent="Control/PanelContainer/MarginContainer/VBoxContainer2"]
-custom_minimum_size = Vector2(250, 0)
+custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
 focus_mode = 0
 text = "Open/Close"
@@ -182,19 +213,50 @@ layout_mode = 2
 object = NodePath("../../../../../../CharacterBody2D")
 field_name = "COYINT"
 
+[node name="HBoxContainer10" parent="Control/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" node_paths=PackedStringArray("object") instance=ExtResource("1_4mjfd")]
+layout_mode = 2
+object = NodePath("../../../../../../CharacterBody2D")
+field_name = "WALLDRAG"
+
+[node name="HBoxContainer12" parent="Control/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" node_paths=PackedStringArray("object") instance=ExtResource("1_4mjfd")]
+layout_mode = 2
+object = NodePath("../../../../../../CharacterBody2D")
+field_name = "SQSHT"
+
+[node name="HBoxContainer11" parent="Control/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" node_paths=PackedStringArray("object") instance=ExtResource("1_4mjfd")]
+layout_mode = 2
+object = NodePath("../../../../../../CharacterBody2D")
+field_name = "SQSHI"
+
 [node name="CharacterBody2D" type="CharacterBody2D" parent="."]
-position = Vector2(473, 505)
+position = Vector2(472, 505)
+floor_snap_length = 10.0
 script = ExtResource("1_qry7v")
 apex_curve = SubResource("Curve_kyr6g")
 
 [node name="Node2D" type="Node2D" parent="CharacterBody2D"]
 position = Vector2(0, 16)
 
-[node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D/Node2D"]
-material = SubResource("ShaderMaterial_b330b")
+[node name="Node2D" type="Node2D" parent="CharacterBody2D/Node2D"]
 position = Vector2(0, -16)
+
+[node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D/Node2D/Node2D"]
+material = SubResource("ShaderMaterial_b330b")
 scale = Vector2(0.5, 0.5)
 texture = SubResource("GradientTexture2D_np473")
+
+[node name="ParticleQueue" type="Node2D" parent="CharacterBody2D/Node2D"]
+script = ExtResource("6_mtmrp")
+template = ExtResource("5_3k1i7")
+
+[node name="RayCast2D" type="RayCast2D" parent="CharacterBody2D/Node2D/ParticleQueue"]
+position = Vector2(0, -16)
+collide_with_areas = true
+
+[node name="RayCast2DRight" type="RayCast2D" parent="CharacterBody2D/Node2D/ParticleQueue"]
+position = Vector2(0, -16)
+target_position = Vector2(50, 0)
+collide_with_areas = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 shape = SubResource("CapsuleShape2D_k44qm")
@@ -229,6 +291,30 @@ position = Vector2(-0.5, -0.5)
 scale = Vector2(0.984375, 0.984375)
 texture = SubResource("GradientTexture2D_e8rc6")
 
+[node name="StaticBody2D16" type="StaticBody2D" parent="."]
+position = Vector2(659, 583)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D16"]
+position = Vector2(-0.5, -0.5)
+shape = SubResource("RectangleShape2D_hwqts")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D16"]
+position = Vector2(-0.5, -0.5)
+scale = Vector2(0.984375, 0.984375)
+texture = SubResource("GradientTexture2D_e8rc6")
+
+[node name="StaticBody2D17" type="StaticBody2D" parent="."]
+position = Vector2(596, 587)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D17"]
+position = Vector2(-0.5, -0.5)
+shape = SubResource("RectangleShape2D_hwqts")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D17"]
+position = Vector2(-0.5, -0.5)
+scale = Vector2(0.984375, 0.984375)
+texture = SubResource("GradientTexture2D_e8rc6")
+
 [node name="StaticBody2D8" type="StaticBody2D" parent="."]
 position = Vector2(722, 191)
 
@@ -253,8 +339,20 @@ position = Vector2(-0.5, -0.5)
 scale = Vector2(0.984375, 0.984375)
 texture = SubResource("GradientTexture2D_e8rc6")
 
+[node name="StaticBody2D14" type="StaticBody2D" parent="."]
+position = Vector2(569, 59)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D14"]
+position = Vector2(-0.5, -0.5)
+shape = SubResource("RectangleShape2D_hwqts")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D14"]
+position = Vector2(-0.5, -0.5)
+scale = Vector2(0.984375, 0.984375)
+texture = SubResource("GradientTexture2D_e8rc6")
+
 [node name="StaticBody2D6" type="StaticBody2D" parent="."]
-position = Vector2(894, 459)
+position = Vector2(908, 460)
 scale = Vector2(1, 3.48)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D6"]
@@ -364,6 +462,19 @@ position = Vector2(-0.5, -0.5)
 shape = SubResource("RectangleShape2D_hwqts")
 
 [node name="Sprite2D" type="Sprite2D" parent="StaticBody2D4"]
+position = Vector2(-0.5, -0.5)
+scale = Vector2(0.984375, 0.984375)
+texture = SubResource("GradientTexture2D_e8rc6")
+
+[node name="StaticBody2D15" type="StaticBody2D" parent="."]
+position = Vector2(146, 216)
+rotation = 0.232482
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D15"]
+position = Vector2(-0.5, -0.5)
+shape = SubResource("RectangleShape2D_hwqts")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D15"]
 position = Vector2(-0.5, -0.5)
 scale = Vector2(0.984375, 0.984375)
 texture = SubResource("GradientTexture2D_e8rc6")
