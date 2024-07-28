@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://dayekiv2rwn5c"]
+[gd_scene load_steps=21 format=3 uid="uid://dayekiv2rwn5c"]
 
 [ext_resource type="Script" path="res://Scenes/button_open_close_menu.gd" id="1_3x175"]
 [ext_resource type="PackedScene" uid="uid://cj7opjueceyof" path="res://Scenes/Paramodifier.tscn" id="1_4mjfd"]
@@ -25,9 +25,14 @@ colors = PackedColorArray(0.733333, 0.286275, 0.286275, 1, 0.962759, 0.502729, 0
 gradient = SubResource("Gradient_xdhhk")
 fill_from = Vector2(1, 1)
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_k44qm"]
-radius = 16.0
-height = 32.0
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8gqqi"]
+shader = ExtResource("2_0pxag")
+shader_parameter/size = 0.31
+shader_parameter/r = 0.06
+shader_parameter/offset = Vector2(0, 8)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xkrip"]
+radius = 15.8
 
 [sub_resource type="Animation" id="Animation_7afvw"]
 resource_name = "hit_down"
@@ -228,6 +233,16 @@ layout_mode = 2
 object = NodePath("../../../../../../CharacterBody2D")
 field_name = "SQSHI"
 
+[node name="HBoxContainer13" parent="Control/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" node_paths=PackedStringArray("object") instance=ExtResource("1_4mjfd")]
+layout_mode = 2
+object = NodePath("../../../../../../CharacterBody2D")
+field_name = "DFRMSZ"
+
+[node name="HBoxContainer14" parent="Control/PanelContainer/MarginContainer/VBoxContainer2/VBoxContainer" node_paths=PackedStringArray("object") instance=ExtResource("1_4mjfd")]
+layout_mode = 2
+object = NodePath("../../../../../../CharacterBody2D")
+field_name = "DFRMMX"
+
 [node name="CharacterBody2D" type="CharacterBody2D" parent="."]
 position = Vector2(472, 505)
 floor_snap_length = 10.0
@@ -241,9 +256,16 @@ position = Vector2(0, 16)
 position = Vector2(0, -16)
 
 [node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D/Node2D/Node2D"]
+visible = false
 material = SubResource("ShaderMaterial_b330b")
 scale = Vector2(0.5, 0.5)
 texture = SubResource("GradientTexture2D_np473")
+
+[node name="Polygon2D" type="Polygon2D" parent="CharacterBody2D/Node2D/Node2D"]
+material = SubResource("ShaderMaterial_8gqqi")
+texture = SubResource("GradientTexture2D_np473")
+polygon = PackedVector2Array(-16, -16, -12, -16, -8, -16, -4, -16, 0, -16, 4, -16, 8, -16, 12, -16, 16, -16, 16, -12, 16, -8, 16, -4, 16, -0.0216579, 16, 4, 16, 8, 16, 12, 16, 16, 12, 16, 8, 16, 4, 16, 0, 16, -4, 16, -8, 16, -12, 16, -16, 16, -16, 12, -16, 8, -16, 4, -16, 0, -16, -4, -16, -8, -16, -12)
+uv = PackedVector2Array(-16, -16, -10, -16, -5, -16, 5, -16, 10, -16, 16, -16, 16, -10, 16, -5, 16, 5, 16, 10, 16, 16, 10, 16, 5, 16, -5, 16, -10, 16, -16, 16, -16, 10, -16, 5, -16, -5, -16, -10)
 
 [node name="ParticleQueue" type="Node2D" parent="CharacterBody2D/Node2D"]
 script = ExtResource("6_mtmrp")
@@ -259,7 +281,7 @@ target_position = Vector2(50, 0)
 collide_with_areas = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
-shape = SubResource("CapsuleShape2D_k44qm")
+shape = SubResource("CircleShape2D_xkrip")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="CharacterBody2D"]
 libraries = {

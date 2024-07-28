@@ -1,6 +1,6 @@
 shader_type canvas_item;
 
-uniform float size = 1;
+uniform float size = 0;
 uniform float r = 0;
 uniform vec2 offset = vec2(0,0);
 //uniform float x = 0;
@@ -20,6 +20,7 @@ void vertex()
 	VERTEX *= deform;
 	VERTEX.y += ary.y * offset.y * -2.0;
 	VERTEX.x += arx.x * offset.x * -2.0;
+	//VERTEX += ary;
 	
 }
 
