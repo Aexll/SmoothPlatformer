@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 
-@export var apex_curve:Curve 
+#@export var apex_curve:Curve 
 #@export var img:Sprite2D
 @onready var visual:Polygon2D = $Node2D/Node2D/Polygon2D
 
@@ -87,6 +87,8 @@ func jump():
 	#apex_reached_time = 0
 	jump_press_time = -1
 	velocity[1] = -1*JMP
+	$HitAudio.stop()
+	$JumpAudio.play()
 
 func wall_jump():
 	if in_jump: return # avoiding jump buffering overflow
@@ -105,6 +107,10 @@ var on_celling:bool = false
 var tween_squeesh_inst:Tween # only one instance so it can be retriggered with ease
 
 func tween_squeesh(dir:Vector2,delay:float = 0.1,intensity:float = 0.5):
+	
+	#$JumpAudio.volume_db = -1 * intensity
+	$HitAudio.play()
+	$JumpAudio.stop()
 	if tween_squeesh_inst: tween_squeesh_inst.stop()
 	var mp = Vector2(abs(cos(dir.angle())),abs(sin(dir.angle())))
 	var midscale = Vector2(1+0.4*intensity,1+0.4*intensity) - (mp) * 0.8 * intensity
@@ -124,6 +130,7 @@ func tween_reset():
 	await tween_squeesh_inst.finished
 
 func on_wall_enter():
+	#if not $Node2D/ParticleQueue/RayCast2DRight.is_colliding(): return
 	in_jump = false
 	on_wall = true
 	if wtime(jump_press_time,JMPBUFT):
@@ -209,10 +216,13 @@ func _physics_process(delta):
 		if is_on_floor() or in_coyote_interval_floor():
 			if is_on_wall() and direction_x:
 				wall_jump()
+				#$Node2D/ParticleQueue.spawn_normal(get_wall_normal().rotated(180))
 			else:
 				jump()
+				#$Node2D/ParticleQueue.spawn_normal(get_floor_normal().rotated(180))
 		elif is_on_wall() or in_coyot_interval_wall():
 			wall_jump()
+			#$Node2D/ParticleQueue.spawn_normal(get_wall_normal().rotated(180))
 	
 	## JUMP STOP
 	if Input.is_action_just_released("jump"):

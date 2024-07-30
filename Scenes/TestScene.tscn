@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://dayekiv2rwn5c"]
+[gd_scene load_steps=27 format=3 uid="uid://dayekiv2rwn5c"]
 
 [ext_resource type="Script" path="res://Scenes/button_open_close_menu.gd" id="1_3x175"]
 [ext_resource type="PackedScene" uid="uid://cj7opjueceyof" path="res://Scenes/Paramodifier.tscn" id="1_4mjfd"]
@@ -6,10 +6,12 @@
 [ext_resource type="Shader" path="res://Scenes/Squeeshing.gdshader" id="2_0pxag"]
 [ext_resource type="PackedScene" uid="uid://n321vsoifodq" path="res://Particles/hit_particles.tscn" id="5_3k1i7"]
 [ext_resource type="Script" path="res://Scenes/particle_queue.gd" id="6_mtmrp"]
-
-[sub_resource type="Curve" id="Curve_kyr6g"]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.495098, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
+[ext_resource type="AudioStream" uid="uid://wsndh1t1kp8v" path="res://Assets/splash_jump.wav" id="7_4i7ga"]
+[ext_resource type="AudioStream" uid="uid://c6qdlt4lw7lne" path="res://Assets/splash_jump_2.wav" id="8_w3fcf"]
+[ext_resource type="AudioStream" uid="uid://c81731vq21lqc" path="res://Assets/splash_jump_3.wav" id="9_pd4sm"]
+[ext_resource type="AudioStream" uid="uid://cuhmdmdsmntfw" path="res://Assets/splash_jump_4.wav" id="10_c6n0q"]
+[ext_resource type="AudioStream" uid="uid://ftn8cwtegav8" path="res://Assets/splash_jump_5.wav" id="11_gcp2w"]
+[ext_resource type="AudioStream" uid="uid://cn5rx0d0vrrb3" path="res://Assets/splash_jump_6.wav" id="12_31iwk"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_b330b"]
 shader = ExtResource("2_0pxag")
@@ -123,6 +125,16 @@ _data = {
 "hit_down": SubResource("Animation_7afvw"),
 "hit_right": SubResource("Animation_pmxm5")
 }
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_rkg0f"]
+random_pitch = 1.2
+streams_count = 6
+stream_0/stream = ExtResource("7_4i7ga")
+stream_1/stream = ExtResource("8_w3fcf")
+stream_2/stream = ExtResource("9_pd4sm")
+stream_3/stream = ExtResource("10_c6n0q")
+stream_4/stream = ExtResource("11_gcp2w")
+stream_5/stream = ExtResource("12_31iwk")
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_bw5d0"]
 
@@ -247,7 +259,6 @@ field_name = "DFRMMX"
 position = Vector2(472, 505)
 floor_snap_length = 10.0
 script = ExtResource("1_qry7v")
-apex_curve = SubResource("Curve_kyr6g")
 
 [node name="Node2D" type="Node2D" parent="CharacterBody2D"]
 position = Vector2(0, 16)
@@ -276,6 +287,13 @@ position = Vector2(0, -16)
 collide_with_areas = true
 
 [node name="RayCast2DRight" type="RayCast2D" parent="CharacterBody2D/Node2D/ParticleQueue"]
+visible = false
+position = Vector2(0, -16)
+target_position = Vector2(50, 0)
+collide_with_areas = true
+
+[node name="RayCast2DLeft" type="RayCast2D" parent="CharacterBody2D/Node2D/ParticleQueue"]
+visible = false
 position = Vector2(0, -16)
 target_position = Vector2(50, 0)
 collide_with_areas = true
@@ -287,6 +305,14 @@ shape = SubResource("CircleShape2D_xkrip")
 libraries = {
 "": SubResource("AnimationLibrary_wj0nw")
 }
+
+[node name="HitAudio" type="AudioStreamPlayer2D" parent="CharacterBody2D"]
+stream = SubResource("AudioStreamRandomizer_rkg0f")
+volume_db = -15.0
+
+[node name="JumpAudio" type="AudioStreamPlayer2D" parent="CharacterBody2D"]
+stream = SubResource("AudioStreamRandomizer_rkg0f")
+volume_db = -10.0
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 position = Vector2(590, 567)
@@ -309,6 +335,18 @@ position = Vector2(-0.5, -0.5)
 shape = SubResource("RectangleShape2D_hwqts")
 
 [node name="Sprite2D" type="Sprite2D" parent="StaticBody2D2"]
+position = Vector2(-0.5, -0.5)
+scale = Vector2(0.984375, 0.984375)
+texture = SubResource("GradientTexture2D_e8rc6")
+
+[node name="StaticBody2D18" type="StaticBody2D" parent="."]
+position = Vector2(863, 408)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D18"]
+position = Vector2(-0.5, -0.5)
+shape = SubResource("RectangleShape2D_hwqts")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D18"]
 position = Vector2(-0.5, -0.5)
 scale = Vector2(0.984375, 0.984375)
 texture = SubResource("GradientTexture2D_e8rc6")
@@ -477,7 +515,7 @@ scale = Vector2(0.984375, 0.984375)
 texture = SubResource("GradientTexture2D_e8rc6")
 
 [node name="StaticBody2D4" type="StaticBody2D" parent="."]
-position = Vector2(275, 356)
+position = Vector2(279, 356)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D4"]
 position = Vector2(-0.5, -0.5)
@@ -504,6 +542,7 @@ texture = SubResource("GradientTexture2D_e8rc6")
 [node name="Polygon2D" type="Polygon2D" parent="."]
 position = Vector2(22, 567)
 scale = Vector2(3.4, 3.4)
+color = Color(0.501407, 0.501406, 0.501406, 1)
 polygon = PackedVector2Array(-1, 0, 141, 0, 128, -3, 120, -6, 111, -11, 102, -14, 92.0588, -14.7059, 83, -13, 75, -10, 64.7059, -7.94118, 52, -8, 40, -11, 29, -13, 20, -13, 10, -10)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Polygon2D"]

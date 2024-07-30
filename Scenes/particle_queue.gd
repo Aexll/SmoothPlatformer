@@ -12,18 +12,27 @@ func _ready() -> void:
 		inst.local_coords = false
 		particle_queue.append(inst)
 
-func spawn():
+#func spawn():
+	#var trg = particle_queue[current]
+	#trg.global_position = $RayCast2D.get_collision_point()
+	#trg.rotation = 0
+	#await get_tree().process_frame
+	#trg.emitting = true
+	#current = (current+1)%queue_size
+#
+#func spawn_right():
+	#var trg = particle_queue[current]
+	#trg.global_position = $RayCast2DRight.get_collision_point()
+	#trg.rotation = -PI/2
+	#await get_tree().process_frame
+	#trg.emitting = true
+	#current = (current+1)%queue_size
+	
+func spawn_normal(dir:Vector2):
 	var trg = particle_queue[current]
-	trg.global_position = $RayCast2D.get_collision_point()
-	trg.rotation = 0
-	await get_tree().process_frame
-	trg.emitting = true
-	current = (current+1)%queue_size
-
-func spawn_right():
-	var trg = particle_queue[current]
-	trg.global_position = $RayCast2DRight.get_collision_point()
-	trg.rotation = -PI/2
+	$RayCast2D.target_position = dir.normalized() * 50
+	trg.global_position = global_position # $RayCast2D.get_collision_point()
+	trg.rotation = dir.angle()
 	await get_tree().process_frame
 	trg.emitting = true
 	current = (current+1)%queue_size
